@@ -1,19 +1,39 @@
-/*TODOs:
+/**********Tony's IR LED Strip**********
 
--Add setStrip(String newData)
--  @newData = string of chars representing colors
--             eg "rroorryybb"
+Parts:
 
-          
-            
-Make Library?
+-Arduino UNO (or any) w/12 Volt power supply
+
+-TM1801 chip based LED strip 
+	-specifically this one:
+		http://blog.radioshack.com/2013/06/tricolor-led-strip/
+		-PWR -> VIN
+		-DATA -> A0
+		-GND -> GND
+	
+
+-IR Receiver Module (most will work)
+	
 
 
 */
+/*TODOs:
+Make Library?
+*/
+
 #include <avr/pgmspace.h>
 #include <IRremote.h>
 #include <SoftwareSerial.h>
 
+/*Configurations*/
+#define buttonPin 6
+#define switchPin 7
+#define LCDRxPin 8
+#define LCDTxPin 9
+#define IRpin 11
+#define backlightTimer 2000 
+
+/*LED Strip*/
 // ******** DEBUG ==== should auto config to adapt different mother board *********
 //#define DATA_1 (PORTF |=  0X01)    // DATA 1    // for ATMEGA
 //#define DATA_0 (PORTF &=  0XFE)    // DATA 0    // for ATMEGA
@@ -21,7 +41,9 @@ Make Library?
 #define DATA_1 (PORTC |=  0X01)    // DATA 1    // for UNO
 #define DATA_0 (PORTC &=  0XFE)    // DATA 0    // for UNO
 #define STRIP_PINOUT (DDRC=0xFF)    // for UNO
+/***********/
 
+/*Define some colors*/
 #define rr  0xff0000
 #define ro  0x6f002f 
 #define ry  0x8f008f
@@ -29,9 +51,11 @@ Make Library?
 #define rb  0x00ff00
 #define rp  0x8f8f00
 #define oo  0x000000
-
 #define lightblue  0x008f8f
+/********************/
 
+
+/*Define stuff for LCD screen speaker*/
 #define A  220
 #define B  222
 #define C  223
@@ -48,8 +72,11 @@ Make Library?
 #define scale3  215
 #define scale4  216
 #define scale5  217
+/*************************************/
 
 
+
+/*A Few Strips To Use*/
 unsigned long colors[10] = {
   rr,ro,ry,ry,rg,rg,rb,rb,rp,rp
 };
@@ -61,16 +88,21 @@ unsigned long strip1[10]={
 unsigned long colorFadeStrip[10]={
   rr,rr,rr,rr,rr,rr,rr,rr,rr,rr  
 };
+/**********************/
 
-SoftwareSerial lcd(8,9);
+
+// LCD screen
+SoftwareSerial lcd(LCDRxPin,LCDTxPin);
+
 // IR Receiver Stuff
-int RECV_PIN = 11;
+int RECV_PIN = IRpin;
 
 IRrecv irrecv(RECV_PIN);
 
 decode_results results;
-// IR Receiver Stuff
 
+
+// Some useful variables
 int currLength = 0;
 
 int currRate = 100;
@@ -79,21 +111,24 @@ int currMode = 10;
 
 int currBrightness = 125;
 
-boolean isOff = false;
-
-int button1;
-int switch1;
-int pot1;
-
 int colorFadeMode = 0;
+
 long thisDistance;
 
+boolean isOff = false;
+
+// Physical Input
+int button1, switch1, pot1;
+
+// Timing stuff
 unsigned long lastMillis = 0;
 unsigned long lastPrint = 0;
 
 void setup(){
-  pinMode(7,INPUT_PULLUP);
-  pinMode(6,INPUT_PULLUP);
+
+  pinMode(switchPin,INPUT_PULLUP);
+  pinMode(buttonPin,INPUT_PULLUP);
+
   pinMode(13, OUTPUT);
   pinMode(12, INPUT);
 
@@ -113,21 +148,21 @@ void setup(){
 
 void loop(){
       
-    switch1 = digitalRead(7);
+    switch1 = digitalRead(switchPin);
     
 //      if(!switch1)
 //        for(int i = 0; i < 10; i++)
 //          strip1[i] = 0x000000;
 //        while(!switch1)        
-//          switch1 = digitalRead(6);
-        
+//          switch1 = digitalRead(6);      
           
     pot1 = analogRead(A1);
-    button1 = digitalRead(6);  
+    button1 = digitalRead(buttonPin);  
 
-    if(!digitalRead(6))
+    if(!digitalRead(buttonPin))
       happyBirthday();
 
+// Recieve Value
     if (irrecv.decode(&results)){
       setMode(results.value);
 //      Serial.println(results.value, HEX);
@@ -136,7 +171,7 @@ void loop(){
       printInfo();
     }
     
-    if(millis() - lastPrint > 2000)
+    if(millis() - lastPrint > backlightTimer)
       lcd.write(18);   
           
 
@@ -380,16 +415,9 @@ void setMode(unsigned long value){
            strip1[i] = 0x000000;
         mySend(strip1);        
 
-     break;
-     
-     
-       
-    }    
-
-  
-  
+     break;       
+    }     
 }
-
 
 void printInfo(){
   lcd.write(17);
