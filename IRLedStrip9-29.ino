@@ -32,8 +32,10 @@ Parts:
 
 #include <IRremote.h> // Credits to Ken Shiriff
 /*
-	Ken's Blog:
-	Ken's Github:
+	Get it here: https://github.com/shirriff/Arduino-IRremote
+
+	Ken's Blog: http://www.righto.com/
+	Ken's Github: https://github.com/shirriff/
 */
 
 /*Configurations*/
@@ -731,15 +733,23 @@ void backlightOff(){
 
 // Update strip with current data
 void updateStrip(){
+
+	// Loop through strip segments
 	for(int i = 0; i < 10; i++)
+		// Limit to current length
 		if(i < currLength)
+			// Set segment according to current settings
 			strip1[i] = currColor * currBrightness;
 		else
+			// Set others off
 			strip1[i] = 0x000000;
+
+	// Refresh Strip
 	mySend(strip1);
 }
 
 unsigned long fadeToColor(unsigned long startColor, unsigned long endColor){
+
 	int r1 =  startColor / 0x010000;
 	int b1 = (startColor / 0x000100) % 0x000100 ;
 	int g1 = startColor % 0x000100;  
