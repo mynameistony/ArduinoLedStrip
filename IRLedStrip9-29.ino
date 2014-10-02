@@ -134,7 +134,7 @@ int currBrightness = 125;
 
 int colorFadeMode = 0;
 
-unsigned long currColor = 0x010101;
+unsigned long currColor = 0x010101; 
 
 long thisDistance;
 
