@@ -1,31 +1,34 @@
-/**********Tony's IR LED Strip**********
+/**********Tony's IR LED Strip*********
+*
+*Parts:
+*
+*-Arduino UNO (or any) w/12 Volt power supply (for the LED strip)
+*
+*-TM1801 chip based LED strip 
+*
+*	-I have this one:
+*		http://blog.radioshack.com/2013/06/tricolor-led-strip/
+*
+*	-PWR -> VIN
+*	-DATA -> A0
+*	-GND -> GND
+*	
+*-IR Receiver Module (most will work)
+*
+*- 4 pin Ultrasonic Rangefinder (Optional)
+*	-I have an HC-SR04
+*	
+*****************************************/
 
-Parts:
-
--Arduino UNO (or any) w/12 Volt power supply (for the LED strip)
-
--TM1801 chip based LED strip 
-
-	-I have this one:
-		http://blog.radioshack.com/2013/06/tricolor-led-strip/
-
-	-PWR -> VIN
-	-DATA -> A0
-	-GND -> GND
-	
--IR Receiver Module (most will work)
-
-- 4 pin Ultrasonic Rangefinder (Optional)
-	-I have an HC-SR04
-	
-*/
-/*TODOs:
--Make Library?
-
--Document better...
-
-
-*/
+/*****TODO*****
+*-Make Library?
+*
+*-Document better...
+*
+*-Add more modes
+*
+*-Add audio jack input ability
+*****************/
 
 #include <avr/pgmspace.h>
 #include <SoftwareSerial.h>
@@ -52,7 +55,7 @@ Parts:
 
 //	LEARN THIS SHIT!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-// ******** DEBUG ==== should auto config to adapt different mother board *********
+//DEBUG ==== should auto config to adapt different mother board 
 //#define DATA_1 (PORTF |=  0X01)    // DATA 1    // for ATMEGA
 //#define DATA_0 (PORTF &=  0XFE)    // DATA 0    // for ATMEGA
 //#define STRIP_PINOUT DDRF=0xFF  // for ATMEGA
@@ -112,15 +115,15 @@ unsigned long colorFadeStrip[10]={
 // LCD screen
 SoftwareSerial lcd(LCDRxPin,LCDTxPin);
 
-// IR Receiver Stuff
+/**IR Receiver Stuff**/
 int RECV_PIN = IRpin;
 
 IRrecv irrecv(RECV_PIN);
 
 decode_results results;
+/*********************/
 
-
-// Some useful variables
+/**Some useful variables**/
 int currLength = 10;
 
 int currRate = 100;
@@ -136,6 +139,7 @@ unsigned long currColor = 0x010101;
 long thisDistance;
 
 boolean isOff = false;
+/***************************/
 
 // Physical Input
 int button1, switch1, pot1;
